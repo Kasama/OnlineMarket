@@ -46,7 +46,8 @@ Request:
 
 Subscribe:
 	sent:
-		<token|productId>
+		<subscribe|token|productId>
+		subscribe - command identifier
 		token - the session token to identify a user
 		productId - the ID of the product the user wants to be notified when is available
 	received:
@@ -55,7 +56,8 @@ Subscribe:
 
 Buy a product:
 	sent:
-		<token|productId|amount|productId|amount|...>
+		<buy|token|productId|amount|productId|amount|...>
+		buy - command identifier
 		token - the session token to identify a user
 		productId - the id of the product to be bought
 		amount - the amount to be bought
@@ -68,7 +70,8 @@ Buy a product:
 
 Add a product:
 	sent:
-		<token|id|name|price|bestBefore|amount|id|name>
+		<addProduct|token|id|name|price|bestBefore|amount|id|name>
+		addProduct - command identifier
 		token - the session token to identify a user
 		id - the id of the product to be added
 		name - name of the product
