@@ -1,8 +1,9 @@
 Sign up:
 	sent:
-		<newuser|username|address|telephone|email|id|password|type>
+		<newuser|username|name|address|telephone|email|id|password|type>
 		newuser - command identifier
-		name -  username to be created
+		username -  username to be created
+		name  - name to be created
 		address - address then address
 		telephone - the telephone number, format XX XXXXXXXXX
 		email - the email, format test@test.com
