@@ -59,8 +59,6 @@ public class CommandParser implements Runnable {
             case "addProduct":
                 handleAddProduct(tokens);
                 break;
-            default:
-
         }
 
     }
@@ -73,6 +71,9 @@ public class CommandParser implements Runnable {
         final int BESTBEFORE = 5;
         final int AMOUNT = 6;
         final int nItems = (tokens.length - 2)/5;
+
+
+
     }
 
     private void handleBuy(String[] tokens) {

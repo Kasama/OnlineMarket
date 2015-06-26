@@ -1,18 +1,18 @@
 package br.usp.icmc.onlinemarket;
 
-public abstract class User {
+public class User {
 
 	private String userName;
 	private String name;
 	private String email;
 	private String address;
-	private byte[] passwordMd5;
+	private String passwordMd5;
 	private long phoneNumber;
 	private long id;
 
 	public User(
 		String userName, String name, String email, String address,
-		byte[] passwordMd5, long phoneNumber, long id
+		String passwordMd5, long phoneNumber, long id
 	) {
 		this.userName = userName;
 		this.name = name;
@@ -39,7 +39,7 @@ public abstract class User {
 		return address;
 	}
 
-	public byte[] getPasswordMd5() {
+	public String getPasswordMd5() {
 		return passwordMd5;
 	}
 
