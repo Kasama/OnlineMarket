@@ -35,7 +35,7 @@ public interface Market {
 			}
 
 			@Override
-			public String[] login(String username, String passwordMd5) {
+			public String[] login(String username, String password) {
 				return new String[0];
 			}
 

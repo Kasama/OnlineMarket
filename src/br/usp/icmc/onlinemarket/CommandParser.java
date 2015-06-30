@@ -62,6 +62,18 @@ public class CommandParser implements Runnable {
 
     }
 
+    private String generateOutputString(String[] string) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("<");
+        for(int i = 0; i < string.length; i++) {
+            sb.append(string[i]);
+
+            if(i == string.length-1) sb.append(">");
+            else sb.append("|");
+        }
+        return sb.toString();
+    }
+
     private void handleAddProduct(String[] tokens) {
         final int TOKEN = 1;
         final int ID = 2;
@@ -71,27 +83,87 @@ public class CommandParser implements Runnable {
         final int AMOUNT = 6;
         final int nItems = (tokens.length - 2)/5;
 
+        String[] productID = new String[nItems];
+        String[] name = new String[nItems];
+        String[] price = new String[nItems];
+        String[] bestBefore = new String[nItems];
+        String[] amount = new String[nItems];
+        int j = 0;
+        for(int i = 2; i < tokens.length; i+=5) {
+            productID[j] = tokens[i];
+            name[j] = tokens[i+1];
+            price[j] = tokens[i+2];
+            bestBefore[j] = tokens[i+3];
+            amount[j] = tokens[i+4];
+            j++;
+        }
+        String[] received = market.addProduct(tokens[TOKEN], productID, name, price, bestBefore, amount);
 
-
+        PrintWriter p = new PrintWriter(out, true);
+        p.write(generateOutputString(received));
     }
 
     private void handleBuy(String[] tokens) {
+        final int TOKEN = 1;
+        final int nItems = (tokens.length - 2) / 2;
+        String[] productID;
+        productID = new String[nItems];
+        String[] amount;
+        amount = new String[nItems];
+        int i = 0, j = 0;
+        for (int k = 2; k < tokens.length; i++) {
+            if (k % 2 == 0) productID[i++] = tokens[k];
+            else amount[j++] = tokens[k];
+        }
 
+        String[] received = market.buyProduct(tokens[TOKEN], productID, amount);
+        PrintWriter p = new PrintWriter(out, true);
+        p.write(generateOutputString(received));
     }
 
     private void handleSubscribe(String[] tokens) {
+        final int TOKEN = 1;
+        final int ID = 2;
 
+        String[] received = market.subscribe(tokens[TOKEN], tokens[ID]);
+
+        PrintWriter p = new PrintWriter(out, true);
+        p.write(generateOutputString(received));
     }
 
     private void handleRequest(String[] tokens) {
+        final int MODE = 1;
 
+        String[] received = market.request(tokens[MODE]);
+
+        PrintWriter p = new PrintWriter(out, true);
+        p.write(generateOutputString(received));
     }
 
     private void handleNewUser(String[] tokens) {
+        final int USERNAME = 1;
+        final int NAME = 2;
+        final int ADDRESS = 3;
+        final int TELEPHONE = 4;
+        final int EMAIL = 5;
+        final int ID = 6;
+        final int PASSWORD = 7;
+        final int TYPE = 8;
 
+        String[] received = market.signUp(tokens[USERNAME], tokens[NAME], tokens[ADDRESS], Long.parseLong(tokens[TELEPHONE]),
+                tokens[EMAIL], Long.parseLong(tokens[ID]), tokens[PASSWORD], tokens[TYPE]);
+
+        PrintWriter p = new PrintWriter(out, true);
+        p.write(generateOutputString(received));
     }
 
     private void handleLogin(String[] tokens) {
+        final int USER = 1;
+        final int PASSWORD = 2;
 
+        String[] received = market.login(tokens[USER], tokens[PASSWORD]);
+
+        PrintWriter p = new PrintWriter(out, true);
+        p.write(generateOutputString(received));
     }
 }
