@@ -4,10 +4,7 @@ import com.opencsv.CSVReader;
 import com.opencsv.CSVWriter;
 import com.sun.istack.internal.NotNull;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -85,7 +82,8 @@ public class DataManager {
 						tokens[3],
 						tokens[4],
 						Long.parseLong(tokens[5]),
-						Long.parseLong(tokens[6])
+						Long.parseLong(tokens[6]),
+					    tokens[7]
 					)
 				)
 			);
@@ -152,7 +150,7 @@ public class DataManager {
 
 	public boolean addUser(
 		String userName, String name, String email, String address,
-		String passwordMd5, long phoneNumber, long id
+		String passwordMd5, long phoneNumber, long id, String type
 	){
 		Optional<User> opUser = userTable.stream()
 			.filter(user -> user.getId() == id)
@@ -167,7 +165,8 @@ public class DataManager {
 			    address,
 			    passwordMd5,
 			    phoneNumber,
-			    id
+			    id,
+			    type
 			)
 		);
 

@@ -8,6 +8,7 @@ import java.util.Scanner;
 public class CommandParser implements Runnable {
     Scanner in;
     PrintWriter out;
+    Market market;
 
     public CommandParser(Socket s) {
         try {
@@ -16,6 +17,7 @@ public class CommandParser implements Runnable {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        market = Market.getInstance();
 
     }
 
@@ -38,9 +40,6 @@ public class CommandParser implements Runnable {
     private void handleCommand(String[] tokens) {
 
         switch (tokens[0]){
-            case "add":
-                handleAdd(tokens);
-                break;
             case "newuser":
                 handleNewUser(tokens);
                 break;
@@ -93,10 +92,6 @@ public class CommandParser implements Runnable {
     }
 
     private void handleLogin(String[] tokens) {
-
-    }
-
-    private void handleAdd(String[] tokens) {
 
     }
 }

@@ -7,12 +7,13 @@ public class User {
 	private String email;
 	private String address;
 	private String passwordMd5;
+	private String type;
 	private long phoneNumber;
 	private long id;
 
 	public User(
 		String userName, String name, String email, String address,
-		String passwordMd5, long phoneNumber, long id
+		String passwordMd5, long phoneNumber, long id, String type
 	) {
 		this.userName = userName;
 		this.name = name;
@@ -20,6 +21,7 @@ public class User {
 		this.address = address;
 		this.passwordMd5 = passwordMd5;
 		this.phoneNumber = phoneNumber;
+		this.type = type;
 		this.id = id;
 	}
 
