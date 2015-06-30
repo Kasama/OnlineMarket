@@ -1,13 +1,17 @@
 package br.usp.icmc.onlinemarket;
 
 import com.opencsv.CSVReader;
+import com.opencsv.CSVWriter;
 import com.sun.istack.internal.NotNull;
 
 import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class DataManager {
 
@@ -116,6 +120,33 @@ public class DataManager {
 			.filter(user -> user.getPasswordMd5().equals(passHash))
 			.findFirst();
 		return opUser.isPresent();
+
+	}
+
+	public void writeToCsv(File usersFile, File productsFile){
+
+		try {
+
+			CSVWriter csvWriter = new CSVWriter(new FileWriter(usersFile));
+
+			List<String[]> toWrite = new ArrayList<>();
+			toWrite = userTable.stream()
+				.map(
+					user -> {
+					    String[] str = new String[7];
+					    str[0] = Long.toString(user.getId());
+					    str[1] = user.getName();
+					    str[2] = user.getPasswordMd5();
+					    str[3] = user.getAddress();
+					    str[4] = user.getEmail();
+					    str[5] = user.getUserName();
+					    str[6] = Long.toString(user.getPhoneNumber());
+					    return str;
+				    }
+				).collect(Collectors.toList());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 
 	}
 
