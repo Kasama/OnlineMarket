@@ -59,12 +59,12 @@ public class Product extends Observable {
 		this.amount += amount;
 	}
 
-	public void dencreaseAmount(int amount){
+	public void decreaseAmount(int amount){
 		this.amount -= amount;
 	}
 
-	public Observer[] getObservers(){
-		return (Observer[]) obs.toArray();
+	public Vector<Observer> getObservers(){
+		return obs;
 	}
 
 	@Override
@@ -85,8 +85,17 @@ public class Product extends Observable {
 		obs.removeAllElements();
 	}
 
+	@Override
+	public void notifyObservers(Object arg) {
+//		super.notifyObservers(arg);
+		obs.forEach(
+			o -> o.update(this, arg)
+		);
+		System.out.println("notified");
+	}
+
 	public void notifyProvider(User provider){
-		if (provider.getId() != getProvider())
+		if (provider.getId() != this.getProvider())
 			return;
 		provider.update(this, new Integer(2));
 	}

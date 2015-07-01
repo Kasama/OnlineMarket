@@ -96,7 +96,7 @@ public class Market {
 		String ret[] = new String[1];
 
 		if (user.isCustomer() && !product.isAvailable()) {
-			product.addObserver(user);
+			dataManager.addObserverToProduct(Long.parseLong(productId), user);
 			ret[0] = Boolean.toString(true);
 		} else {
 			ret[0] = Boolean.toString(false);
@@ -117,30 +117,35 @@ public class Market {
 			return ret;
 		}
 
+		List<String> unavailableIds = new ArrayList<>(productId.length);
 		for (int i = 0; i < productId.length; i++) {
 			if (Integer.parseInt(amount[i]) < 0)
-				throw new IllegalArgumentException(
-					"Negative amount cannot be bought"
-				);
-			Product p = dataManager.getProductById(Integer.parseInt(productId[i]));
-			List<String> unavailableIds = new ArrayList<>(productId.length);
-			if (p == null) {
 				unavailableIds.add(productId[i]);
-			} else {
-				if (!p.isAvailable() && Integer.parseInt(amount[i]) > 0) {
-					p.notifyProvider(dataManager.getUserById(p.getProvider()));
+			else {
+				Product p = dataManager
+					.getProductById(Integer.parseInt(productId[i]));
+				if (p == null || p.getAmount() < Long.parseLong(amount[i])) {
 					unavailableIds.add(productId[i]);
-				}else {
-					p.dencreaseAmount(Integer.parseInt(amount[i]));
+				} else {
+					if (p.isAvailable()) {
+						if (Integer.parseInt(amount[i]) == p.getAmount())
+							p.notifyProvider(
+								dataManager.getUserById(p.getProvider())
+						);
+						dataManager.decreaseAmountOfProduct(
+							Integer.parseInt(productId[i]),
+							Integer.parseInt(amount[i])
+						);
+					}
 				}
 			}
-			if (unavailableIds.size() > 0){
-				ret = new String[unavailableIds.size()];
+			if (unavailableIds.size() > 0) {
+				ret = new String[unavailableIds.size() + 1];
 				ret[0] = Boolean.toString(false);
 				for (int j = 0; j < unavailableIds.size(); j++) {
-					ret[j+1] = unavailableIds.get(j);
+					ret[j + 1] = unavailableIds.get(j);
 				}
-			}else{
+			} else {
 				ret = new String[1];
 				ret[0] = Boolean.toString(true);
 			}
@@ -162,30 +167,40 @@ public class Market {
 			return ret;
 		}
 
+		List<String> l = new ArrayList<>();
 		for (int i = 0; i < id.length; i++) {
 			if (Integer.parseInt(amount[i]) < 0)
-				throw new IllegalArgumentException(
-					"Negative amount cannot be added"
+				l.add(
+					"Product: " + id[i] + ", Negative amount cannot be added"
 				);
-			Product p = dataManager.getProductById(Integer.parseInt(id[i]));
-			if (p == null) {
-				ret[0] = Boolean.toString(
-					dataManager.addProduct(
-						Long.parseLong(id[i]),
-						name[i], Double.parseDouble(price[i]),
-						bestBefore[i], Long.parseLong(amount[i]),
-						u.getId()
-					)
+			else {
+				Product p = dataManager.getProductById(
+					Integer.parseInt
+						(id[i])
 				);
-			} else if (p.getName().equals(name[i])) {
-				if (!p.isAvailable() && Integer.parseInt(amount[i]) > 0)
-					p.notifyObservers(1);
-				p.increaseAmount(Integer.parseInt(amount[i]));
-				ret[0] = Boolean.toString(true);
+
+				if (p == null) {
+					ret[0] = Boolean.toString(
+						dataManager.addProduct(
+							Long.parseLong(id[i]),
+							name[i], Double.parseDouble(price[i]),
+							bestBefore[i], Long.parseLong(amount[i]),
+							u.getId()
+						)
+					);
+				} else if (p.getName().equals(name[i])) {
+					if (!p.isAvailable() && Integer.parseInt(amount[i]) > 0)
+						p.notifyObservers(1);
+					dataManager.increaseAmountOfProduct(
+						Integer.parseInt(id[i]),
+						Integer.parseInt(amount[i])
+					);
+					ret[0] = Boolean.toString(true);
+				}
 			}
 		}
 
-		ret[1] = "";
+		ret[1] = l.stream().reduce("", (a, b) -> a + "\n" + b);
 		return ret;
 	}
 
@@ -197,7 +212,7 @@ public class Market {
 
 	static Market getInstance() {
 		if (instance == null)
-			 instance = new Market(new File("defaultMarket/"));
+			instance = new Market(new File("defaultMarket/"));
 		return instance;
 	}
 }

@@ -119,13 +119,14 @@ public class CommandParser implements Runnable {
 		String[] amount;
 		amount = new String[nItems];
 		int i = 0, j = 0;
-		for (int k = 2; k < tokens.length; i++) {
+		for (int k = 2; k < tokens.length; k++) {
 			if (k % 2 == 0) productID[i++] = tokens[k];
 			else amount[j++] = tokens[k];
 		}
 
 		String[] received = market.buyProduct(tokens[TOKEN], productID,
 		                                      amount);
+		System.out.println(generateOutputString(received));
 		out.println(generateOutputString(received));
 	}
 

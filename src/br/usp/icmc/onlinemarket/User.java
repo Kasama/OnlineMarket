@@ -87,7 +87,10 @@ public class User implements Observer {
 	public void update(Observable o, Object arg) {
 		int i = (Integer) arg;
 
+		System.out.println("notified!");
+
 		Email e = null;
+		System.out.println("creating email");
 		switch (i) {
 			case 1:
 				try {
@@ -114,6 +117,7 @@ public class User implements Observer {
 				}
 				break;
 		}
+		System.out.println("sending email");
 
 		assert e != null;
 		e.send();

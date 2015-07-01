@@ -8,10 +8,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class DataManager {
@@ -43,7 +40,8 @@ public class DataManager {
 			} catch (IOException e) {
 				System.err.println(
 					"Could not create file '" + usersFile.getAbsolutePath() +
-					"'. maybe you don't have permission to write in this folder"
+					"'. maybe you don't have permission to write in this " +
+					"folder"
 				);
 				System.exit(1);
 			}
@@ -84,7 +82,7 @@ public class DataManager {
 						tokens[4],
 						Long.parseLong(tokens[5]),
 						Long.parseLong(tokens[6]),
-					    tokens[7]
+						tokens[7]
 					)
 				)
 			);
@@ -104,7 +102,7 @@ public class DataManager {
 				)
 			);
 
-			for (Product product : productTable){
+			for (Product product : productTable) {
 				File file = new File(
 					productsFile.getParent() + "/products/" + product.getId() +
 					".csv"
@@ -130,7 +128,7 @@ public class DataManager {
 
 	public User getUserById(long id) {
 		return userTable.stream()
-			.filter( u -> u.getId() == id)
+			.filter(u -> u.getId() == id)
 			.findFirst()
 			.orElse(null);
 	}
@@ -145,7 +143,7 @@ public class DataManager {
 
 	}
 
-	public synchronized void writeToCsv(){
+	public synchronized void writeToCsv() {
 
 		try {
 
@@ -153,44 +151,53 @@ public class DataManager {
 
 			List<String[]> toWrite;
 
-			for (Product product : productTable){
+			for (Product product : productTable) {
+				File productsFolder = new File(
+					productsFile.getParent()
+					+ "/products"
+				);
+				productsFolder.mkdir();
 				File file = new File(
-					productsFile.getParent() + "/products/" + product.getId() +
+					productsFolder.getPath() + "/" + product.getId() +
 					".csv"
 				);
-				if (file.exists()) {
-					csvWriter = new CSVWriter(new FileWriter(file));
-
-					User[] u = (User[]) product.getObservers();
-					List<String[]> l = Arrays.stream(u)
-						.map(
-							usr -> {
-								String[] str = new String[1];
-								str[0] = String.valueOf(usr.getId());
-								return str;
-							}
-						)
-						.collect(Collectors.toList());
-					csvWriter.writeAll(l);
-					csvWriter.flush();
-
+				if (!file.exists()) {
+					file.createNewFile();
 				}
+				csvWriter = new CSVWriter(new FileWriter(file));
+
+				Vector<Observer> u = product.getObservers();
+				List<String[]> l = u.stream()
+					.map(
+						obs -> (User) obs
+					)
+					.map(
+						usr -> {
+							String[] str = new String[1];
+							str[0] = String.valueOf(usr.getId());
+							return str;
+						}
+					)
+					.collect(Collectors.toList());
+				csvWriter.writeAll(l);
+				csvWriter.flush();
+
 			}
 
 			toWrite = userTable.stream()
 				.map(
 					user -> {
-					    String[] str = new String[8];
+						String[] str = new String[8];
 						str[0] = user.getUserName();
-					    str[1] = user.getName();
+						str[1] = user.getName();
 						str[2] = user.getEmail();
 						str[3] = user.getAddress();
-					    str[4] = user.getPasswordMd5();
+						str[4] = user.getPasswordMd5();
 						str[5] = Long.toString(user.getPhoneNumber());
 						str[6] = Long.toString(user.getId());
 						str[7] = user.getType();
-					    return str;
-				    }
+						return str;
+					}
 				).collect(Collectors.toList());
 
 			csvWriter = new CSVWriter(new FileWriter(usersFile));
@@ -210,15 +217,6 @@ public class DataManager {
 						return str;
 					}
 				).collect(Collectors.toList());
-			toWrite.forEach(
-				s -> {
-					for (String s1 : s){
-						System.out.println(s1 + ", ");
-					}
-					System.out.println();
-				}
-			);
-
 			csvWriter = new CSVWriter(new FileWriter(productsFile));
 			csvWriter.writeAll(toWrite);
 			csvWriter.flush();
@@ -232,7 +230,7 @@ public class DataManager {
 	public synchronized boolean addUser(
 		String userName, String name, String email, String address,
 		String passwordMd5, long phoneNumber, long id, String type
-	){
+	) {
 		Optional<User> opUser = userTable.stream()
 			.filter(user -> user.getId() == id)
 			.findFirst();
@@ -241,13 +239,13 @@ public class DataManager {
 		userTable.add(
 			new User(
 				userName,
-			    name,
-			    email,
-			    address,
-			    passwordMd5,
-			    phoneNumber,
-			    id,
-			    type
+				name,
+				email,
+				address,
+				passwordMd5,
+				phoneNumber,
+				id,
+				type
 			)
 		);
 		System.out.println("added user");
@@ -268,7 +266,7 @@ public class DataManager {
 			.collect(Collectors.toList());
 	}
 
-	public List<Product> getAllProducts(){
+	public List<Product> getAllProducts() {
 		return productTable;
 	}
 
@@ -281,32 +279,48 @@ public class DataManager {
 
 	public Product getProductById(long id) {
 		return productTable.stream()
-				.filter(u -> u.getId() == id)
-				.findFirst()
-				.orElse(null);
+			.filter(u -> u.getId() == id)
+			.findFirst()
+			.orElse(null);
 	}
 
 	public synchronized boolean addProduct(
-		Long id , String name, Double price, String bestBefore,
-				Long amount, Long provider
-		){
-			Optional<Product> opProduct = productTable.stream()
-					.filter(product -> product.getId() == id)
-					.findFirst();
-			if (opProduct.isPresent()) return false;
+		Long id, String name, Double price, String bestBefore,
+		Long amount, Long provider
+	) {
+		Optional<Product> opProduct = productTable.stream()
+			.filter(product -> product.getId() == id)
+			.findFirst();
+		if (opProduct.isPresent()) return false;
 
-			productTable.add(
-					new Product(
-							id,
-							name,
-							price,
-							bestBefore,
-							amount,
-							provider
-					)
-			);
-			writeToCsv();
-			return true;
+		productTable.add(
+			new Product(
+				id,
+				name,
+				price,
+				bestBefore,
+				amount,
+				provider
+			)
+		);
+		writeToCsv();
+		return true;
 	}
 
+	public void increaseAmountOfProduct(int id, int amount) {
+		Product p = getProductById(id);
+		p.increaseAmount(amount);
+		writeToCsv();
+	}
+
+	public void decreaseAmountOfProduct(int id, int amount) {
+		Product p = getProductById(id);
+		p.decreaseAmount(amount);
+		writeToCsv();
+	}
+
+	public void addObserverToProduct(long id, User user) {
+		getProductById(id).addObserver(user);
+		writeToCsv();
+	}
 }
