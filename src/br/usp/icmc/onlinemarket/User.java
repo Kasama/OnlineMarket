@@ -1,5 +1,7 @@
 package br.usp.icmc.onlinemarket;
 
+import javax.mail.internet.AddressException;
+import javax.mail.internet.InternetAddress;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -33,7 +35,7 @@ public class User implements Observer {
 		this.phoneNumber = phoneNumber;
 		this.type = type;
 		this.id = id;
-		switch (type){
+		switch (type) {
 			case TYPECUSTOMER:
 				isCustomer = true;
 				isProvider = false;
@@ -83,7 +85,38 @@ public class User implements Observer {
 
 	@Override
 	public void update(Observable o, Object arg) {
+		int i = (Integer) arg;
 
+		Email e = null;
+		switch (i) {
+			case 1:
+				try {
+					e = new Email(
+						"A watched product has arrived!",
+						"the product you were watching just arrived at the " +
+						"store!",
+						new InternetAddress(this.getEmail())
+					);
+				} catch (AddressException e1) {
+					e1.printStackTrace();
+				}
+				break;
+			case 2:
+				try {
+					e = new Email(
+						"A provided product is out of stock!",
+						"one of the products provided by you are no longer " +
+						"available in stock, please send some more",
+						new InternetAddress(this.getEmail())
+					);
+				} catch (AddressException e1) {
+					e1.printStackTrace();
+				}
+				break;
+		}
+
+		assert e != null;
+		e.send();
 	}
 
 	public boolean isCustomer() {

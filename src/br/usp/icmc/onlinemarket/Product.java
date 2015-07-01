@@ -85,6 +85,12 @@ public class Product extends Observable {
 		obs.removeAllElements();
 	}
 
+	public void notifyProvider(User provider){
+		if (provider.getId() != getProvider())
+			return;
+		provider.update(this, new Integer(2));
+	}
+
 	public long getProvider() {
 		return provider;
 	}

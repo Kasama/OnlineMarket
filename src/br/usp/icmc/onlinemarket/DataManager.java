@@ -58,7 +58,7 @@ public class DataManager {
 
 	}
 
-	private void loadFromCsv(File usersFile, File productsFile) {
+	private synchronized void loadFromCsv(File usersFile, File productsFile) {
 
 		try {
 			CSVReader csvReader = new CSVReader(new FileReader(usersFile));
@@ -117,7 +117,7 @@ public class DataManager {
 		}
 	}
 
-	private User getUserById(long id) {
+	public User getUserById(long id) {
 		return userTable.stream()
 			.filter( u -> u.getId() == id)
 			.findFirst()
@@ -134,7 +134,7 @@ public class DataManager {
 
 	}
 
-	public void writeToCsv(File usersFile, File productsFile){
+	public synchronized void writeToCsv(File usersFile, File productsFile){
 
 		try {
 
@@ -196,7 +196,7 @@ public class DataManager {
 
 	}
 
-	public boolean addUser(
+	public synchronized boolean addUser(
 		String userName, String name, String email, String address,
 		String passwordMd5, long phoneNumber, long id, String type
 	){
@@ -251,7 +251,7 @@ public class DataManager {
 				.orElse(null);
 	}
 
-	public boolean addProduct(
+	public synchronized boolean addProduct(
 		Long id , String name, Double price, String bestBefore,
 				Long amount, Long provider
 		){

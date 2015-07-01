@@ -1,7 +1,8 @@
 package br.usp.icmc.onlinemarket;
 
-import javafx.fxml.FXML;
+import com.sun.xml.internal.fastinfoset.algorithm.BooleanEncodingAlgorithm;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -71,7 +72,7 @@ public class Market {
 				products = Collections.emptyList();
 		}
 
-		ret = new String[products.size() * 7];
+		ret = new String[products.size() * 5];
 
 		int i = 0;
 
@@ -80,8 +81,6 @@ public class Market {
 			ret[i++] = p.getName();
 			ret[i++] = String.valueOf(p.getPrice());
 			ret[i++] = p.getBestBefore();
-			ret[i++] = String.valueOf(p.getProvider());
-			ret[i++] = p.isAvailable() ? "Available" : "Unavailable";
 			ret[i++] = String.valueOf(p.getAmount());
 		}
 
@@ -90,8 +89,10 @@ public class Market {
 
 	public String[] subscribe(String token, String productId) {
 		User user = sessionManager.getUserByToken(token);
-		Product product = dataManager.getProductById(Long.parseLong
-			                                             (productId));
+		Product product = dataManager.getProductById(
+			Long.parseLong
+				(productId)
+		);
 		String ret[] = new String[1];
 
 		if (user.isCustomer() && !product.isAvailable()) {
@@ -107,21 +108,41 @@ public class Market {
 	public String[] buyProduct(
 		String token, String[] productId, String[] amount
 	) {
-		String[] ret;
-
 		User u = sessionManager.getUserByToken(token);
+		String ret[] = new String[2];
+
 		if (!u.isCustomer()) {
-			ret = new String[productId.length + 1];
 			ret[0] = Boolean.toString(false);
-			System.arraycopy(productId, 0, ret, 1, productId.length);
+			ret[1] = "Permission denied.";
 			return ret;
 		}
-		int i = 0;
 
-		for (String id : productId) {
-			Product product = dataManager.getProductById(Long.parseLong(id));
-			if (!product.isAvailable()) {
-				//TODO buy
+		for (int i = 0; i < productId.length; i++) {
+			if (Integer.parseInt(amount[i]) < 0)
+				throw new IllegalArgumentException(
+					"Negative amount cannot be bought"
+				);
+			Product p = dataManager.getProductById(Integer.parseInt(productId[i]));
+			List<String> unavailableIds = new ArrayList<>(productId.length);
+			if (p == null) {
+				unavailableIds.add(productId[i]);
+			} else {
+				if (!p.isAvailable() && Integer.parseInt(amount[i]) > 0) {
+					p.notifyProvider(dataManager.getUserById(p.getProvider()));
+					unavailableIds.add(productId[i]);
+				}else {
+					p.dencreaseAmount(Integer.parseInt(amount[i]));
+				}
+			}
+			if (unavailableIds.size() > 0){
+				ret = new String[unavailableIds.size()];
+				ret[0] = Boolean.toString(false);
+				for (int j = 0; j < unavailableIds.size(); j++) {
+					ret[j+1] = unavailableIds.get(j);
+				}
+			}else{
+				ret = new String[1];
+				ret[0] = Boolean.toString(true);
 			}
 		}
 
@@ -141,19 +162,27 @@ public class Market {
 			return ret;
 		}
 
-		Product p = dataManager.getProductById(Integer.parseInt(id[0]));
-		if (p == null) {
-			ret[0] = Boolean.toString(
-				dataManager.addProduct(
-					Long.parseLong(id[0]),
-					name[0], Double.parseDouble(price[0]),
-					bestBefore[0], Long.parseLong(amount[0]),
-					u.getId()
-				)
-			);
-		} else if (p.getName().equals(name[0])) {
-			p.increaseAmount(Integer.parseInt(amount[0]));
-			ret[0] = Boolean.toString(true);
+		for (int i = 0; i < id.length; i++) {
+			if (Integer.parseInt(amount[i]) < 0)
+				throw new IllegalArgumentException(
+					"Negative amount cannot be added"
+				);
+			Product p = dataManager.getProductById(Integer.parseInt(id[i]));
+			if (p == null) {
+				ret[0] = Boolean.toString(
+					dataManager.addProduct(
+						Long.parseLong(id[i]),
+						name[i], Double.parseDouble(price[i]),
+						bestBefore[i], Long.parseLong(amount[i]),
+						u.getId()
+					)
+				);
+			} else if (p.getName().equals(name[i])) {
+				if (!p.isAvailable() && Integer.parseInt(amount[i]) > 0)
+					p.notifyObservers(1);
+				p.increaseAmount(Integer.parseInt(amount[i]));
+				ret[0] = Boolean.toString(true);
+			}
 		}
 
 		ret[1] = "";
