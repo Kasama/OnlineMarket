@@ -29,9 +29,14 @@ public class CommandParser implements Runnable {
 
         while (in.hasNext()) {
             s = in.nextLine();
-            if(s.startsWith("<") && s.endsWith(">")) {
-                tokens = s.split("|");
+	        System.out.println("found string");
+	        if(s.startsWith("<") && s.endsWith(">")) {
+	            System.out.println("found command");
+	            tokens = s.split("|");
                 handleCommand(tokens);
+		        for (String t : tokens){
+			        System.out.println(t);
+		        }
             }
         }
 
@@ -41,9 +46,11 @@ public class CommandParser implements Runnable {
 
         switch (tokens[0]){
             case "newuser":
+                System.out.println("newuserCommand");
                 handleNewUser(tokens);
                 break;
             case "login":
+                System.out.println("login");
                 handleLogin(tokens);
                 break;
             case "request":

@@ -24,7 +24,10 @@ public class DataManager {
 	) throws
 	  IllegalArgumentException {
 
-		if (directory.isDirectory()) throw new IllegalArgumentException();
+		if (directory.exists() && !directory.isDirectory())
+			throw new IllegalArgumentException();
+		else
+			directory.mkdir();
 		File usersFile;
 		File productsFile;
 
@@ -36,8 +39,8 @@ public class DataManager {
 				usersFile.createNewFile();
 			} catch (IOException e) {
 				System.err.println(
-					"Could not create file " + usersFile.getName() +
-					". maybe you don't have permission to write in this folder"
+					"Could not create file '" + usersFile.getAbsolutePath() +
+					"'. maybe you don't have permission to write in this folder"
 				);
 				System.exit(1);
 			}
@@ -53,6 +56,9 @@ public class DataManager {
 				System.exit(1);
 			}
 		}
+
+		userTable = new ArrayList<>();
+		productTable = new ArrayList<>();
 
 		loadFromCsv(usersFile, productsFile);
 
@@ -152,7 +158,6 @@ public class DataManager {
 
 					User[] u = (User[]) product.getObservers();
 					String[] s = new String[1];
-
 
 				}
 			}

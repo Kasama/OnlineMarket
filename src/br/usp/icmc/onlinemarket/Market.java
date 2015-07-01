@@ -1,19 +1,18 @@
 package br.usp.icmc.onlinemarket;
 
-import com.sun.xml.internal.fastinfoset.algorithm.BooleanEncodingAlgorithm;
-
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 public class Market {
 
-	private static Market instance = new Market();
+	private static Market instance = null;
 	private DataManager dataManager;
 	private SessionManager sessionManager;
 
-	private Market() {
-		dataManager = new DataManager();
+	private Market(File file) {
+		dataManager = new DataManager(file);
 		sessionManager = new SessionManager();
 	}
 
@@ -189,7 +188,15 @@ public class Market {
 		return ret;
 	}
 
+	static Market getInstance(File file) {
+		if (instance == null)
+			instance = new Market(file);
+		return instance;
+	}
+
 	static Market getInstance() {
+		if (instance == null)
+			 instance = new Market(new File("defaultMarket/"));
 		return instance;
 	}
 }
