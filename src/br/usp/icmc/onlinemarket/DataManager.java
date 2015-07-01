@@ -87,7 +87,8 @@ public class DataManager {
 						tokens[1],
 						Double.parseDouble(tokens[2]),
 						tokens[3],
-						Long.parseLong(tokens[4])
+						Long.parseLong(tokens[4]),
+						Long.parseLong(tokens[5])
 					)
 				)
 			);
@@ -226,8 +227,31 @@ public class DataManager {
 
 	public Product getProductById(int id) {
 		return productTable.stream()
-				.filter( u -> u.getId() == id)
+				.filter(u -> u.getId() == id)
 				.findFirst()
 				.orElse(null);
 	}
+
+	public boolean addProduct(
+		Long id , String name, Double price, String bestBefore,
+				Long amount, Long provider
+		){
+			Optional<Product> opProduct = productTable.stream()
+					.filter(product -> product.getId() == id)
+					.findFirst();
+			if (opProduct.isPresent()) return false;
+
+			productTable.add(
+					new Product(
+							id,
+							name,
+							price,
+							bestBefore,
+							amount,
+							provider
+					)
+			);
+			return true;
+	}
+
 }

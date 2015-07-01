@@ -1,5 +1,8 @@
 package br.usp.icmc.onlinemarket;
 
+import com.sun.org.apache.xpath.internal.operations.Bool;
+import jdk.nashorn.internal.objects.NativeUint16Array;
+
 import java.util.Collections;
 import java.util.List;
 
@@ -87,7 +90,7 @@ public class Market {
 
 	public String[] subscribe(String token, String productId) {
 		User user = sessionManager.getUserByToken(token);
-        Product product = dataManager.getProductById(Integer.parseInt(productId));
+        Product product = dataManager.getProductById(Long.parseLong(productId));
         String ret[] = new String[1];
 
         if(user.isCustomer() && !product.isAvailable()){
@@ -111,7 +114,30 @@ public class Market {
 		String token, String[] id, String[] name, String[] price, String[]
 		bestBefore, String[] amount
 	) {
-		return new String[0];
+        User u = sessionManager.getUserByToken(token);
+        String ret[] = new String[2];
+
+        if(!u.isProvider()) {
+            ret[0] = Boolean.toString(false);
+            ret[1] = "Error, permission denied.";
+            return ret;
+        }
+
+        Product p = dataManager.getProductById(Integer.parseInt(id[0]));
+        if(p == null){
+            ret[0] = Boolean.toString(
+                    dataManager.addProduct(Long.parseLong(id[0]),
+                            name[0],Double.parseDouble(price[0]),
+                            bestBefore[0], Long.parseLong(amount[0]),
+                            u.getId()
+                    ));
+        }else if(p.getName().equals(name[0])){
+            p.increaseAmount(Integer.parseInt(amount[0]));
+            ret[0] = Boolean.toString(true);
+        }
+
+        ret[1] = "";
+        return ret;
 	}
 
 	static Market getInstance() {
