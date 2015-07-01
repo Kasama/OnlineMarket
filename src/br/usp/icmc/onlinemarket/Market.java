@@ -1,68 +1,108 @@
 package br.usp.icmc.onlinemarket;
 
-public interface Market {
+import java.util.Collections;
+import java.util.List;
 
-	String[] signUp(
+public class Market {
+
+	private static Market instance = new Market();
+	private DataManager dataManager;
+	private SessionManager sessionManager;
+
+	private Market() {
+		dataManager = new DataManager();
+		sessionManager = new SessionManager();
+	}
+
+	public String[] signUp(
 		String username, String name, String address, long telephone,
 		String email, long id, String password, String type
-	);
+	) {
+		String[] ret = new String[2];
+		String passwordMD5;
+		passwordMD5 = sessionManager.getMD5Sum(password);
+		if (dataManager.addUser(
+			username, name, email, address, passwordMD5, telephone, id, type
+			)
+		){
+			ret[0] = Boolean.toString(true);
+			ret[1] = "";
+		}else {
+			ret[0] = Boolean.toString(false);
+			ret[1] = "";
+		}
 
-	String[] login(
-		String username, String passwordMd5
-	);
+		return ret;
+	}
 
-	String[] request(String mode);
+	public String[] login(
+		String username, String password
+	) {
+		String[] ret;
+		ret = new String[1];
+		ret[0] = "";
+		User user;
+		String token = sessionManager.getSessionToken(username, password);
+		if ((user = dataManager.verifyLogin(username, token)) != null) {
+			sessionManager.addSession(token, user);
+			ret[0] = token;
+		}
 
-	String[] subscribe(String token, String productId);
+		return ret;
+	}
 
-	String[] buyProduct(
+	public String[] request(String mode) {
+		String[] ret;
+		List<Product> products;
+		switch (mode){
+			case "available":
+				products = dataManager.getAvailableProducts();
+				break;
+			case "unavailable":
+				products = dataManager.getUnavailableProducts();
+				break;
+			case "all":
+				products = dataManager.getAllProducts();
+				break;
+			default:
+				products = Collections.emptyList();
+		}
+
+		ret = new String[products.size()*7];
+
+		int i = 0;
+
+		for (Product p : products){
+			ret[i++] = String.valueOf(p.getId());
+			ret[i++] = p.getName();
+			ret[i++] = String.valueOf(p.getPrice());
+			ret[i++] = p.getBestBefore();
+			ret[i++] = String.valueOf(p.getProvider());
+			ret[i++] = p.isAvailable() ? "Available":"Unavailable";
+			ret[i++] = String.valueOf(p.getAmount());
+		}
+
+		return ret;
+	}
+
+	public String[] subscribe(String token, String productId) {
+		return new String[0];
+	}
+
+	public String[] buyProduct(
 		String token, String[] productId, String[] amount
-	);
+	) {
+		return new String[0];
+	}
 
-	String[] addProduct(
+	public String[] addProduct(
 		String token, String[] id, String[] name, String[] price, String[]
 		bestBefore, String[] amount
-	);
+	) {
+		return new String[0];
+	}
 
-	static Market getInstance(){
-		return new Market() {
-			@Override
-			public String[] signUp(
-				String username, String name, String address, long telephone,
-				String email, long id, String password, String type
-			) {
-				return new String[0];
-			}
-
-			@Override
-			public String[] login(String username, String passwordMd5) {
-				return new String[0];
-			}
-
-			@Override
-			public String[] request(String mode) {
-				return new String[0];
-			}
-
-			@Override
-			public String[] subscribe(String token, String productId) {
-				return new String[0];
-			}
-
-			@Override
-			public String[] buyProduct(
-				String token, String[] productId, String[] amount
-			) {
-				return new String[0];
-			}
-
-			@Override
-			public String[] addProduct(
-				String token, String[] id, String[] name, String[] price,
-				String[] bestBefore, String[] amount
-			) {
-				return new String[0];
-			}
-		};
+	static Market getInstance() {
+		return instance;
 	}
 }

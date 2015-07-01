@@ -4,7 +4,10 @@ import com.opencsv.CSVReader;
 import com.opencsv.CSVWriter;
 import com.sun.istack.internal.NotNull;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -12,23 +15,10 @@ import java.util.stream.Collectors;
 
 public class DataManager {
 
-	private static DataManager instance = null;
-
 	private ArrayList<User> userTable;
 	private ArrayList<Product> productTable;
 
-	public static DataManager getInstance(File directory)
-		throws IllegalArgumentException {
-		if (instance == null)
-			instance = new DataManager(directory);
-		return instance;
-	}
-
-	public static DataManager getInstance() {
-		return instance;
-	}
-
-	private DataManager(
+	public DataManager(
 		@NotNull
 		File directory
 	) throws
@@ -102,6 +92,21 @@ public class DataManager {
 				)
 			);
 
+			for (Product product : productTable){
+				File file = new File(
+					productsFile.getParent() + "/products/" + product.getId() +
+					".csv"
+				);
+				if (file.exists()) {
+					csvReader = new CSVReader(new FileReader(file));
+					csvReader.forEach(
+						tokens -> product.addObserver(
+							this.getUserById(Integer.parseInt(tokens[0]))
+						)
+					);
+				}
+			}
+
 		} catch (IOException e) {
 			System.err.println(
 				"something went wrong when reading from files," +
@@ -111,13 +116,20 @@ public class DataManager {
 		}
 	}
 
-	public boolean verifyLogin(String userName, String passHash) {
+	private User getUserById(int id) {
+		return userTable.stream()
+			.filter( u -> u.getId() == id)
+			.findFirst()
+			.orElse(null);
+	}
 
-		Optional<User> opUser = userTable.stream()
-			.filter(user -> user.getName().equals(userName))
+	public User verifyLogin(String userName, String passHash) {
+
+		return userTable.stream()
+			.filter(user -> user.getUserName().equals(userName))
 			.filter(user -> user.getPasswordMd5().equals(passHash))
-			.findFirst();
-		return opUser.isPresent();
+			.findFirst()
+			.orElse(null);
 
 	}
 
@@ -128,6 +140,22 @@ public class DataManager {
 			CSVWriter csvWriter = new CSVWriter(new FileWriter(usersFile));
 
 			List<String[]> toWrite = new ArrayList<>();
+
+			for (Product product : productTable){
+				File file = new File(
+					productsFile.getParent() + "/products/" + product.getId() +
+					".csv"
+				);
+				if (file.exists()) {
+					csvWriter = new CSVWriter(new FileWriter(file));
+
+					User[] u = (User[]) product.getObservers();
+					String[] s = new String[1];
+
+
+				}
+			}
+
 			toWrite = userTable.stream()
 				.map(
 					user -> {
@@ -171,5 +199,28 @@ public class DataManager {
 		);
 
 		return true;
+	}
+
+	public List<Product> getAvailableProducts() {
+		return productTable.stream()
+			.filter(Product::isAvailable)
+			.collect(Collectors.toList());
+	}
+
+	public List<Product> getUnavailableProducts() {
+		return productTable.stream()
+			.filter(Product::isUnavailable)
+			.collect(Collectors.toList());
+	}
+
+	public List<Product> getAllProducts(){
+		return productTable;
+	}
+
+	public User getUserByUsername(String username) {
+		return userTable.stream()
+			.filter(u -> u.getUserName().equals(username))
+			.findFirst()
+			.orElse(null);
 	}
 }

@@ -1,12 +1,19 @@
 package br.usp.icmc.onlinemarket;
 
-public class Product {
+import java.util.Observable;
+import java.util.Observer;
+import java.util.Vector;
+
+public class Product extends Observable {
 
 	long id;
 	String name;
 	double price;
 	String bestBefore;
 	long amount;
+	long provider;
+
+	Vector<Observer> obs;
 
 	public Product(
 		long id, String name, double price, String bestBefore, long amount
@@ -16,6 +23,7 @@ public class Product {
 		this.price = price;
 		this.bestBefore = bestBefore;
 		this.amount = amount;
+		this.obs = new Vector<>();
 	}
 
 	public long getId() {
@@ -34,7 +42,41 @@ public class Product {
 		return bestBefore;
 	}
 
+	public boolean isUnavailable(){
+		return !(amount > 0);
+	}
+
+	public boolean isAvailable(){
+		return amount > 0;
+	}
+
 	public long getAmount() {
 		return amount;
+	}
+
+	public Observer[] getObservers(){
+		return (Observer[]) obs.toArray();
+	}
+
+	@Override
+	public synchronized void addObserver(Observer o) {
+		super.addObserver(o);
+		obs.add(o);
+	}
+
+	@Override
+	public synchronized void deleteObserver(Observer o) {
+		super.deleteObserver(o);
+		obs.remove(o);
+	}
+
+	@Override
+	public synchronized void deleteObservers() {
+		super.deleteObservers();
+		obs.removeAllElements();
+	}
+
+	public long getProvider() {
+		return provider;
 	}
 }

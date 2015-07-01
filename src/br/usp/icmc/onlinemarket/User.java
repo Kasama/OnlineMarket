@@ -1,6 +1,9 @@
 package br.usp.icmc.onlinemarket;
 
-public class User {
+import java.util.Observable;
+import java.util.Observer;
+
+public class User implements Observer {
 
 	private String userName;
 	private String name;
@@ -51,5 +54,14 @@ public class User {
 
 	public long getId() {
 		return id;
+	}
+
+	public String getType() {
+		return type;
+	}
+
+	@Override
+	public void update(Observable o, Object arg) {
+
 	}
 }
