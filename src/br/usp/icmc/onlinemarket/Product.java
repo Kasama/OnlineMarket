@@ -16,13 +16,14 @@ public class Product extends Observable {
 	Vector<Observer> obs;
 
 	public Product(
-		long id, String name, double price, String bestBefore, long amount
+		long id, String name, double price, String bestBefore, long amount, long provider
 	) {
 		this.id = id;
 		this.name = name;
 		this.price = price;
 		this.bestBefore = bestBefore;
 		this.amount = amount;
+		this.provider = provider;
 		this.obs = new Vector<>();
 	}
 
@@ -52,6 +53,14 @@ public class Product extends Observable {
 
 	public long getAmount() {
 		return amount;
+	}
+
+	public void increaseAmount(int amount){
+		this.amount += amount;
+	}
+
+	public void dencreaseAmount(int amount){
+		this.amount -= amount;
 	}
 
 	public Observer[] getObservers(){
