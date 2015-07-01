@@ -116,7 +116,7 @@ public class DataManager {
 		}
 	}
 
-	private User getUserById(int id) {
+	private User getUserById(long id) {
 		return userTable.stream()
 			.filter( u -> u.getId() == id)
 			.findFirst()
@@ -224,7 +224,7 @@ public class DataManager {
 			.orElse(null);
 	}
 
-	public Product getProductById(int id) {
+	public Product getProductById(long id) {
 		return productTable.stream()
 				.filter( u -> u.getId() == id)
 				.findFirst()

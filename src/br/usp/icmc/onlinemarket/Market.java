@@ -1,6 +1,5 @@
 package br.usp.icmc.onlinemarket;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -114,8 +113,13 @@ public class Market {
 			System.arraycopy(productId, 0, ret, 1, productId.length);
 			return ret;
 		}
-		for (String idS : productId){
-			long id = Long.parseLong(idS);
+		int i = 0;
+
+		for (String id : productId){
+			Product product = dataManager.getProductById(Long.parseLong(id));
+			if (!product.isAvailable()) {
+				//TODO buy
+			}
 		}
 
 		return ret;
