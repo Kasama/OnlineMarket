@@ -140,7 +140,7 @@ public class DataManager {
 
 			CSVWriter csvWriter = new CSVWriter(new FileWriter(usersFile));
 
-			List<String[]> toWrite = new ArrayList<>();
+			List<String[]> toWrite;
 
 			for (Product product : productTable){
 				File file = new File(
@@ -171,6 +171,25 @@ public class DataManager {
 					    return str;
 				    }
 				).collect(Collectors.toList());
+
+			csvWriter.writeAll(toWrite);
+
+			toWrite = productTable.stream()
+				.map(
+					product -> {
+						String[] str = new String[6];
+						str[0] = String.valueOf(product.getId());
+						str[1] = product.getName();
+						str[2] = String.valueOf(product.getPrice());
+						str[3] = product.getBestBefore();
+						str[4] = String.valueOf(product.getAmount());
+						str[5] = String.valueOf(product.getProvider());
+						return str;
+					}
+				).collect(Collectors.toList());
+
+			csvWriter.writeAll(toWrite);
+
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
