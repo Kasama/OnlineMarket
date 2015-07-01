@@ -5,12 +5,19 @@ import java.util.Observer;
 
 public class User implements Observer {
 
+	private static final String TYPECUSTOMER = "customer";
+	private static final String TYPEPROVIDER = "provider";
+	private static final String TYPEBOTH = "customerAndProvider";
+
+
 	private String userName;
 	private String name;
 	private String email;
 	private String address;
 	private String passwordMd5;
 	private String type;
+	private boolean isCustomer;
+	private boolean isProvider;
 	private long phoneNumber;
 	private long id;
 
@@ -26,6 +33,20 @@ public class User implements Observer {
 		this.phoneNumber = phoneNumber;
 		this.type = type;
 		this.id = id;
+		switch (type){
+			case TYPECUSTOMER:
+				isCustomer = true;
+				isProvider = false;
+				break;
+			case TYPEPROVIDER:
+				isCustomer = false;
+				isProvider = true;
+				break;
+			case TYPEBOTH:
+				isCustomer = true;
+				isProvider = true;
+				break;
+		}
 	}
 
 	public String getUserName() {
@@ -63,5 +84,13 @@ public class User implements Observer {
 	@Override
 	public void update(Observable o, Object arg) {
 
+	}
+
+	public boolean isCustomer() {
+		return isCustomer;
+	}
+
+	public boolean isProvider() {
+		return isProvider;
 	}
 }

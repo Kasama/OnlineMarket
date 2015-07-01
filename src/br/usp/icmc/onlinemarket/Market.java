@@ -1,5 +1,6 @@
 package br.usp.icmc.onlinemarket;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -29,7 +30,7 @@ public class Market {
 			ret[1] = "";
 		}else {
 			ret[0] = Boolean.toString(false);
-			ret[1] = "";
+			ret[1] = "impossible to add this user";
 		}
 
 		return ret;
@@ -92,7 +93,20 @@ public class Market {
 	public String[] buyProduct(
 		String token, String[] productId, String[] amount
 	) {
-		return new String[0];
+		String[] ret;
+
+		User u = sessionManager.getUserByToken(token);
+		if (!u.isCustomer()){
+			ret = new String [productId.length+1];
+			ret[0] = Boolean.toString(false);
+			System.arraycopy(productId, 0, ret, 1, productId.length);
+			return ret;
+		}
+		for (String idS : productId){
+			long id = Long.parseLong(idS);
+		}
+
+		return ret;
 	}
 
 	public String[] addProduct(
