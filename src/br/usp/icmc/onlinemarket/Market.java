@@ -46,7 +46,8 @@ public class Market {
 		ret[0] = "";
 		User user;
 		String token = sessionManager.getSessionToken(username, password);
-		if ((user = dataManager.verifyLogin(username, token)) != null) {
+		String passHash = sessionManager.getMD5Sum(password);
+		if ((user = dataManager.verifyLogin(username, passHash)) != null) {
 			sessionManager.addSession(token, user);
 			ret[0] = token;
 		}

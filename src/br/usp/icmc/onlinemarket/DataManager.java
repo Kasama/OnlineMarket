@@ -9,6 +9,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -17,6 +18,8 @@ public class DataManager {
 
 	private ArrayList<User> userTable;
 	private ArrayList<Product> productTable;
+	File usersFile;
+	File productsFile;
 
 	public DataManager(
 		@NotNull
@@ -57,6 +60,8 @@ public class DataManager {
 			}
 		}
 
+		this.usersFile = usersFile;
+		this.productsFile = productsFile;
 		userTable = new ArrayList<>();
 		productTable = new ArrayList<>();
 
@@ -140,11 +145,11 @@ public class DataManager {
 
 	}
 
-	public synchronized void writeToCsv(File usersFile, File productsFile){
+	public synchronized void writeToCsv(){
 
 		try {
 
-			CSVWriter csvWriter = new CSVWriter(new FileWriter(usersFile));
+			CSVWriter csvWriter;
 
 			List<String[]> toWrite;
 
@@ -157,7 +162,17 @@ public class DataManager {
 					csvWriter = new CSVWriter(new FileWriter(file));
 
 					User[] u = (User[]) product.getObservers();
-					String[] s = new String[1];
+					List<String[]> l = Arrays.stream(u)
+						.map(
+							usr -> {
+								String[] str = new String[1];
+								str[0] = String.valueOf(usr.getId());
+								return str;
+							}
+						)
+						.collect(Collectors.toList());
+					csvWriter.writeAll(l);
+					csvWriter.flush();
 
 				}
 			}
@@ -165,19 +180,22 @@ public class DataManager {
 			toWrite = userTable.stream()
 				.map(
 					user -> {
-					    String[] str = new String[7];
-					    str[0] = Long.toString(user.getId());
+					    String[] str = new String[8];
+						str[0] = user.getUserName();
 					    str[1] = user.getName();
-					    str[2] = user.getPasswordMd5();
-					    str[3] = user.getAddress();
-					    str[4] = user.getEmail();
-					    str[5] = user.getUserName();
-					    str[6] = Long.toString(user.getPhoneNumber());
+						str[2] = user.getEmail();
+						str[3] = user.getAddress();
+					    str[4] = user.getPasswordMd5();
+						str[5] = Long.toString(user.getPhoneNumber());
+						str[6] = Long.toString(user.getId());
+						str[7] = user.getType();
 					    return str;
 				    }
 				).collect(Collectors.toList());
 
+			csvWriter = new CSVWriter(new FileWriter(usersFile));
 			csvWriter.writeAll(toWrite);
+			csvWriter.flush();
 
 			toWrite = productTable.stream()
 				.map(
@@ -192,8 +210,18 @@ public class DataManager {
 						return str;
 					}
 				).collect(Collectors.toList());
+			toWrite.forEach(
+				s -> {
+					for (String s1 : s){
+						System.out.println(s1 + ", ");
+					}
+					System.out.println();
+				}
+			);
 
+			csvWriter = new CSVWriter(new FileWriter(productsFile));
 			csvWriter.writeAll(toWrite);
+			csvWriter.flush();
 
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -222,6 +250,8 @@ public class DataManager {
 			    type
 			)
 		);
+		System.out.println("added user");
+		writeToCsv();
 
 		return true;
 	}
@@ -275,6 +305,7 @@ public class DataManager {
 							provider
 					)
 			);
+			writeToCsv();
 			return true;
 	}
 
