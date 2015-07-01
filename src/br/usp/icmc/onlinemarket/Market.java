@@ -86,7 +86,19 @@ public class Market {
 	}
 
 	public String[] subscribe(String token, String productId) {
-		return new String[0];
+		User user = sessionManager.getUserByToken(token);
+        Product product = dataManager.getProductById(Integer.parseInt(productId));
+        String ret[] = new String[1];
+
+        if(user.isCustomer() && !product.isAvailable()){
+            product.addObserver(user);
+            ret[0] = Boolean.toString(true);
+        }
+        else {
+            ret[0] = Boolean.toString(false);
+        }
+
+		return ret;
 	}
 
 	public String[] buyProduct(

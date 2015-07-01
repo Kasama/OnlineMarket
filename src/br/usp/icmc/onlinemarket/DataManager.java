@@ -223,4 +223,11 @@ public class DataManager {
 			.findFirst()
 			.orElse(null);
 	}
+
+	public Product getProductById(int id) {
+		return productTable.stream()
+				.filter( u -> u.getId() == id)
+				.findFirst()
+				.orElse(null);
+	}
 }

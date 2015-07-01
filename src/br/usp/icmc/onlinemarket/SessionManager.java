@@ -47,4 +47,8 @@ public class SessionManager {
 		if (!sessionTokens.containsKey(token))
 			sessionTokens.put(token, user);
 	}
+
+	public User getUserByToken(String token){
+        return sessionTokens.get(token);
+	}
 }
