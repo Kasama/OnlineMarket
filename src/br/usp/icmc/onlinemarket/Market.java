@@ -72,7 +72,11 @@ public class Market {
 				products = Collections.emptyList();
 		}
 
-		ret = new String[products.size() * 5];
+		if (products.size() == 0) {
+			ret = new String[1];
+			ret[0] = "";
+		} else
+			ret = new String[products.size() * 7];
 
 		int i = 0;
 
@@ -81,6 +85,8 @@ public class Market {
 			ret[i++] = p.getName();
 			ret[i++] = String.valueOf(p.getPrice());
 			ret[i++] = p.getBestBefore();
+			ret[i++] = String.valueOf(p.getProvider());
+			ret[i++] = (p.isAvailable()) ? "Available" : "Unavailable";
 			ret[i++] = String.valueOf(p.getAmount());
 		}
 
@@ -131,7 +137,7 @@ public class Market {
 						if (Integer.parseInt(amount[i]) == p.getAmount())
 							p.notifyProvider(
 								dataManager.getUserById(p.getProvider())
-						);
+							);
 						dataManager.decreaseAmountOfProduct(
 							Integer.parseInt(productId[i]),
 							Integer.parseInt(amount[i])
