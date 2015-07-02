@@ -3,34 +3,32 @@ package br.usp.icmc.onlinemarket;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class SessionManager {
 
-	static SessionManager instance = null;
-	private ArrayList<String> sessionTokens;
+	private Map<String, User> sessionTokens;
 
-	private SessionManager(){
-		sessionTokens = new ArrayList<>();
-	}
-
-	public SessionManager getInstance(){
-		if (instance == null)
-			instance = new SessionManager();
-		return instance;
+	public SessionManager(){
+		sessionTokens = new HashMap<>();
 	}
 
 	public boolean logout(String token){
 
-		return sessionTokens.remove(token);
+		return sessionTokens.remove(token) != null;
 
 	}
 
-	public String login(String user, String password){
+	public String getSessionToken(String user, String password){
 
 		String tomd5 = user+password;
-		String token = "";
 
+		return getMD5Sum(tomd5);
+
+	}
+
+	public String getMD5Sum(String tomd5){
 		MessageDigest md = null;
 		BigInteger bi;
 
@@ -41,15 +39,16 @@ public class SessionManager {
 		assert md != null;
 		bi = new BigInteger(1, md.digest(tomd5.getBytes()));
 
-		if (DataManager.getInstance().verifyLogin(user, bi.toString(16))) {
-			token = bi.toString(16);
-			if (!sessionTokens.contains(token))
-				sessionTokens.add(token);
-		}
-
-		return token;
+		return bi.toString(16);
 
 	}
 
+	public void addSession(String token, User user) {
+		if (!sessionTokens.containsKey(token))
+			sessionTokens.put(token, user);
+	}
 
+	public User getUserByToken(String token){
+        return sessionTokens.get(token);
+	}
 }
